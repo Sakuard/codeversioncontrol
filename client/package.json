@@ -1,0 +1,39 @@
+{
+  "name": "cvs-client",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon",
+    "test": "nodemon app.js"
+  },
+  "author": "Matt.tw",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.6.5",
+    "chalk": "^5.3.0",
+    "chalk-animation": "^2.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "figlet": "^1.7.0",
+    "form-data": "^4.0.0",
+    "gradient-string": "^2.0.2",
+    "inquirer": "^9.2.12",
+    "nanospinner": "^1.1.0",
+    "socket.io-client": "^4.7.4",
+    "uuid": "^9.0.1",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/chalk-animation": "^1.6.3",
+    "@types/express": "^4.17.21",
+    "@types/figlet": "^1.5.8",
+    "@types/gradient-string": "^1.1.5",
+    "@types/inquirer": "^9.0.7",
+    "@types/socket.io-client": "^3.0.0",
+    "@types/ws": "^8.5.10",
+    "nodemon": "^3.0.2"
+  }
+}
