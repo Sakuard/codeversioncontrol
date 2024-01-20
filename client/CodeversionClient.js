@@ -5,19 +5,27 @@ import chalkAnimation from "chalk-animation";
 import figlet from "figlet";
 import { createSpinner } from "nanospinner";
 
-import * as axiosConfig from './dist/axios.js'
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
+import * as axiosConfig from './dist/axios.js'
+import * as SysHandler from './syshandler.js';
+import { FileStream } from './dist/fileStreaming.js';
+
+let userCache, versionCache, fileStream;
+fileStream = new FileStream();
 export const askLogin = async () => {
+  console.log(`\nUser Login ...`)
   const user = await inquirer.prompt([
     {
       name: 'account',
       type: 'input',
-      message: 'Please enter your account'
+      message: 'Account: '
     },
     {
       name: 'password',
       type: 'password',
-      message: 'Please enter your password'
+      message: 'Password: '
     }
   ])
   if (user.account === '' || user.password === '') {
@@ -41,47 +49,81 @@ export const callAction = async () => {
 }
 
 export const actRouter = async (action) => {
+  userCache = JSON.parse(fs.readFileSync('./cache/user.json', 'utf8'));
+  versionCache = JSON.parse(fs.readFileSync('./cache/version.json', 'utf8'));
   switch (action) {
     case 'init':
-      init();
+      await init();
       break;
     case 'push':
-      push();
+      await push();
       break;
     case 'fetch':
-      fetch();
+      await fetch();
       break;
     case 'pull':
-      pull();
+      await pull();
       break;
     case 'clone':
-      clone();
+      await clone();
       break;
   }
 }
 
 /** ========== init ========== */
 async function init() {
-  console.log(`exec init() ... `)
-  const initProjectData = await inquirer.prompt([
+  console.log(`\nProject inintial ...`)
+  const initProject = await inquirer.prompt([
     {
-      name: 'projectName',
+      name: 'Group',
       type: 'input',
-      message: 'Please enter your project name.'
+      message: 'Group:'
     },
     {
-      name: 'projectDir',
+      name: 'Name',
       type: 'input',
-      message: 'Please enter your project directory.'
+      message: 'Project Name: '
+    },
+    {
+      name: 'Path',
+      type: 'input',
+      message: 'Project Path: '
     }
   ])
-  
+  if (initProject.Name === '' || initProject.Path === ''|| initProject.Group === '') {
+    console.log(chalk.red('Plz key in Project Data'))
+    let confirm = await SysHandler.askConfirm()
+    if (confirm) {
+      await init();
+    }
+    return;
+  }
+  let newProject = {
+    guid: uuidv4(),
+    group: initProject.Group,
+    projname: initProject.Name,
+    projpath: initProject.Path,
+    createtime: new Date().toLocaleString(),
+    createuser: userCache.account? userCache.account: '',
+    version: '0.1.0'
+  }
+  versionCache.push(newProject);
+  fs.writeFileSync('./cache/version.json', JSON.stringify(versionCache, null, 2), 'utf8');
 }
 
-
 /** ========== push ========== */
-function push() {
-  console.log(`exec push() ... `)
+async function push() {
+  console.log(`\nProject push ... `)
+  let selectProject = await cacheProjectSelect();
+  const pushProjectVersion = await inquirer.prompt({
+    name: 'version',
+    type: 'input',
+    message: `Version(now: ${selectProject.version}): `
+  })
+  selectProject.version = pushProjectVersion.version;
+  console.log(`selectProject: `, selectProject);
+  // let result = await fileStream.setData(selectProject).StartStream();
+  let result = await fileStream.setData(selectProject);
 }
 
  /** ========== fetch ========== */
@@ -95,6 +137,22 @@ function pull() {
 }
 
  /** ========== clone ========== */
-function clone() {
+ function clone() {
   console.log(`exec clone() ... `)
+}
+  
+/** ========== general ========== */
+async function cacheProjectSelect() {
+  const cacheProject = await inquirer.prompt({
+    name: 'project',
+    type: 'list',
+    message: 'Please select a project',
+    choices: versionCache.map((item) => {
+      return {
+        name: item.projname,
+        value: item
+      }
+    })
+  })
+  return cacheProject.project;
 }

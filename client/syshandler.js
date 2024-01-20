@@ -1,6 +1,7 @@
 // @ts-check
 import dotenv from 'dotenv';
 import fs from 'fs';
+import inquirer from 'inquirer';
 import { createSpinner } from 'nanospinner';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -47,4 +48,18 @@ export function systemInit() {
 
 export async function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * 
+ * @param {string} msg 
+ * @returns {Promise<boolean>} 回傳為boolean
+ */
+export async function askConfirm(msg = '確定較續嗎?') {
+  const answer = await inquirer.prompt({
+    name: 'confirm',
+    type: 'confirm',
+    message: msg,
+  });
+  return answer.confirm;
 }

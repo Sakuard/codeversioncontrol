@@ -9,6 +9,7 @@ import cors from 'cors';
 dotenv.config();
 
 import SocketServer from './socketServer'
+import * as fileStreamRoute from './fileStreamRoute';
 
 const port = process.env.Web_PORT || 3000;
 const corsOptions = {
@@ -18,6 +19,7 @@ const corsOptions = {
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const Router = express.Router();
 const httpServer = http.createServer(app);
 const io = new SocketServer(httpServer);
 
@@ -25,7 +27,6 @@ app.get('/', (req, res) => {
   console.log(`http request: '/`)
   res.send('Hello world');
 })
-
 app.post('/v1/user/login', (req, res) => {
   console.log(`http request: '/v1/user/login`)
   const { account, password } = req.body;
@@ -37,6 +38,22 @@ app.post('/v1/user/login', (req, res) => {
   }
   res.send(response);
 })
+// Router.post('/v1/user/push', fileStreamRoute.storeRouter)
+// Router.post('/v1/user/push', () => {
+//   console.log(`http request: '/v1/user/push`)
+// })
+app.post('/v1/user/push', (req, res) => {
+  fileStreamRoute.storeRouter(req, res);
+})
+// app.post('/v1/user/push', (req, res) => {
+//   console.log(`http request: '/v1/user/push`)
+//   let response = {
+//     status: 200,
+//     result: true,
+//     message: 'success'
+//   }
+//   res.send(response);
+// })
 
 httpServer.listen(port, () => {
   console.log(`Server running on port ${port}`);
